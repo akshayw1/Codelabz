@@ -170,7 +170,7 @@ const authenticatedSelectorForAllowedDashboard = profile => {
 /**
  * This is the hoc for check whether the route is
  * accessible to a user who has completed the basic work flow of
- * registration
+ * registration - test
  * This hoc will first check whether the user is logged in and then it
  * will check if the user has completed the workflow
  */
