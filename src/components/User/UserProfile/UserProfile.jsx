@@ -9,6 +9,7 @@ import OrgUser from "../../../assets/images/org-user.svg";
 import { userList } from "../../HomePage/userList";
 import Card from "@mui/material/Card";
 import UserHighlights from "./UserHighlights";
+import { getAllOrganizations } from "../../../store/actions";
 import { useDispatch, useSelector } from "react-redux";
 import { useFirebase, useFirestore } from "react-redux-firebase";
 import {
@@ -59,9 +60,32 @@ function UserProfile(props) {
   const firebase = useFirebase();
   const firestore = useFirestore();
   const dispatch = useDispatch();
-  getTutorialFeedData;
+
+  // Get the logged-in user's profile from Redux
+  const loggedInProfile = useSelector(({ firebase: { profile } }) => profile);
+
+  console.log(loggedInProfile.uid);
+  
+  
+  // Check if the profile being viewed is the logged-in user's profile
+  const isOwnProfile = loggedInProfile.uid === props.profileData.uid;
+
 
   const profileData = useSelector(({ firebase: { profile } }) => profile);
+
+  // Use state for organizations just like before
+  const [organizations, setOrganizations] = useState([]);
+
+  // Add useEffect to fetch organizations
+  useEffect(() => {
+    const fetchOrgs = async () => {
+      const orgs = await getAllOrganizations()(firebase, firestore, dispatch);
+      if (orgs && orgs.length > 0) {
+        setOrganizations(orgs);
+      }
+    };
+    fetchOrgs();
+  }, [firebase, firestore, dispatch]);
 
   useEffect(() => {
     const getFeed = async () => {
@@ -83,25 +107,6 @@ function UserProfile(props) {
     }) => homepageFeedArray
   );
 
-  const [organizations, setUpOrganizations] = useState([
-    {
-      name: "Google Summer of Code",
-      img: [OrgUser]
-    },
-    {
-      name: "Google Summer of Code",
-      img: [OrgUser]
-    },
-    {
-      name: "Google Summer of Code",
-      img: [OrgUser]
-    },
-    {
-      name: "Google Summer of Code",
-      img: [OrgUser]
-    }
-  ]);
-
   return (
     <>
       <div className={classes.parentBody}>
@@ -109,17 +114,12 @@ function UserProfile(props) {
           <Grid>
             <Card>
               <ProfileCardOne
-                profileImage={
-                  props.profileData.photoURL
-                    ? props.profileData.photoURL
-                    : "https://i.pravatar.cc/300"
-                }
+                profileImage={props.profileData.photoURL}
                 name={props.profileData.displayName}
-                story={
-                  "Lorem ipsum dolor sit amet, consectetuer adipiscing elit"
-                }
-                followers={402}
-                following={40}
+                story={"Lorem ipsum dolor sit amet, consectetuer adipiscing elit"}
+                followers={props.profileData.followerCount || 0 }
+                following={props.profileData.followingCount}
+                isOwnProfile={isOwnProfile}
               />
             </Card>
           </Grid>
